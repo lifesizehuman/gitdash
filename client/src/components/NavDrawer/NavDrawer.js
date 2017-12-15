@@ -74,10 +74,6 @@ class NavDrawer extends React.Component {
           <ContentSaveIcon className="margin-right hover-black" />
           <span className="color-white hover-black">Saved</span>
         </a>
-        <a href="">
-          <ArchiveIcon className="margin-right hover-black" />
-          <span className="color-white hover-black">My Repos</span>
-        </a>
         <Spacer />
         <a href="https://github.com/ALMaclaine/gitdash">
           <HelpCircleIcon className="help_outline margin-right hover-black" />

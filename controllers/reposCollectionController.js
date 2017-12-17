@@ -1,12 +1,7 @@
 const db = require("../models");
 
-function gatherUnique() {
-  let m = new Set
-}
-
 module.exports = {
   get: function(req, res) {
-    console.log(req.session);
     db.RepoCollection
       .find({ _id: req.params.id })
       .then(ret => res.json(ret))
@@ -14,16 +9,16 @@ module.exports = {
   },
   add: function (req, res) {
     db.RepoCollection
-      .findByIdAndUpdate({ _id: req.params.id },
+      .findByIdAndUpdate({ _id: req.user.repo_collection },
                          { $push: { repos: req.body.catnode_id } },
-                         { upsert: false })
-    res.end();
+                         { upsert: false, new: true }, (err, resp) => {
+                           res.json(resp);
+                         })
   },
   addRepoByUserId: function(req, res) {
     db.User.find({ github_id: req.params.id })
            .then(user => {
              let colId = user[0].repo_collection;
-             console.log(colId);
              const repoObj = {
                repo_id: req.body.repo_id,
                owner_id: req.body.owner,
@@ -97,7 +92,7 @@ module.exports = {
   },
   info: function(req, res) {
     db.RepoCollection
-      .findById(req.params.id)
+      .findById(req.user.repo_collection)
       .populate({
         path: 'repos',
         populate: {
@@ -118,6 +113,7 @@ module.exports = {
         const categories  = {};
         for(const x of resp.repos) {
           let owner = x.repo.owner_id.owner_id + "";
+          console.log("REPO", x.repo);
           if(!owners[owner]) owners[owner] = [];
           owners[owner].push(x.repo.repo_id);
 

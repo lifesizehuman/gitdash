@@ -1,6 +1,8 @@
 const router  = require("express").Router();
 const axios = require("axios");
 
+const Token = require("../../../models/Token.js");
+
 function objToQueryParams(obj) {
   const keys = Reflect.ownKeys(obj);
   return keys.reduce((a,c,i) => {
@@ -10,18 +12,18 @@ function objToQueryParams(obj) {
   }, "?");
 }
 
-const usersRoute = term => {
-  const usersOptions = { type: "all", sort: "updated", direction: "desc", access_token: "84e8dc8926a8885fcf2d7f42a297e7cd0f0c4b4d" };
+const usersRoute = (term, token) => {
+  const usersOptions = { type: "all", sort: "updated", direction: "desc", access_token: token };
   return `https://api.github.com/users/${term}/repos${objToQueryParams(usersOptions)}`;
 }
 
-const orgsRoute = term => {
-  const orgsOptions = { type: "all", access_token: "84e8dc8926a8885fcf2d7f42a297e7cd0f0c4b4d" };
+const orgsRoute = (term, token) => {
+  const orgsOptions = { type: "all", access_token: token };
   return `https://api.github.com/orgs/${term}/repos${objToQueryParams(orgsOptions)}`;
 }
 
-const reposRoute = term => {
-  const reposOptions = { q: term, sort: "updated", order: "desc", access_token: "84e8dc8926a8885fcf2d7f42a297e7cd0f0c4b4d" };
+const reposRoute = (term, token) => {
+  const reposOptions = { q: term, sort: "updated", order: "desc", access_token: token };
   return `https://api.github.com/search/repositories${objToQueryParams(reposOptions)}`
 }
 
@@ -29,20 +31,21 @@ const Repo = require("../../../src/Repo.js");
 
 function handlerGen(routHand) {
   return (req, res) => {
-    console.log("!SEARCH");
-    console.log(req.user);
-    console.log("!SEARCH");
-    let url = routHand(req.params.term);
-    axios.get(url)
-    .then(function (resp) {
-      const source = resp.data.items || resp.data;
-      const repos  = source.map(e => new Repo(e));
-      res.json(repos);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.json(err);
-    })
+    Token.findOne({ github_id: req.user.github_id })
+         .then(e => {
+           let url = routHand(req.params.term, e.token);
+           console.log(url);
+           axios.get(url)
+             .then(function (resp) {
+               const source = resp.data.items || resp.data;
+               const repos = source.map(e => new Repo(e));
+               res.json(repos);
+             })
+             .catch((err) => {
+               console.log(err);
+               res.json(err);
+             })
+         });
   }
 }
 

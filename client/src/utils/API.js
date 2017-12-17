@@ -10,11 +10,14 @@ export default {
   searchRepos: function(term) {
     return axios.get(`/api/github/search/repos/${term}`);
   },
-  getCollectionInfo: function(id) {
-    return axios.get(`/api/collection/info/${id}`);
+  getCollectionInfo: function() {
+    return axios.get(`/api/info/`);
   },
   getUserName: function(id) {
     return axios.get(`/api/github/user/${id}`);
+  },
+  getUserInfo: function() {
+    return axios.get(`/api/github/user/`);
   },
   getRepo: function (id) {
     return axios.get(`/api/github/repo/${id}`);
@@ -22,4 +25,11 @@ export default {
   getUser: function (id) {
     return axios.get(`/api/user/${id}`);
   },
+  addCatNode: function(obj) {
+    axios.post("/api/catnode/", obj)
+      .then(function (resp) {
+        axios.post(`/api/collection/`, { catnode_id: resp.data._id });
+      })
+      .catch(err => console.log(err))
+  }
 }

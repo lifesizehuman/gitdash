@@ -36,7 +36,13 @@ const RepoCard = props =>
       <span className="updatedAt">Updated: {formatDate(new Date(props.repoObj.updated_at))}</span>
       <div className="mdl-layout-spacer"></div>
       <button className="mdl-button mr v-sml mdl-js-button mdl-button--fab mdl-button--colored" >
-        <CloudDownloadIcon  className="orange-circle"/>
+        <CloudDownloadIcon onClick={() => props.handle({
+                                      repo_id: props.repoObj.repo_id,
+                                      language: props.repoObj.language,
+                                      owner_id: props.repoObj.owner.owner_id
+                                    })}
+                           className="orange-circle"/>
+                          {console.log(props.repoObj)}
       </button>
       <button onClick={() => copyArrow(props.repoObj.clone_url)} className="mdl-button mr v-sml mdl-js-button mdl-button--fab mdl-button--colored" >
         <PaperclipIcon className="orange-circle" />
